@@ -29,7 +29,7 @@ const parseLabels = (label: xarrowPropsType['labels']): labelsType => {
 
 // remove 'auto' as possible anchor from anchorCustomPositionType.position
 interface anchorCustomPositionType2 extends Omit<Required<anchorCustomPositionType>, 'position'> {
-  position: Exclude<typeof cAnchorEdge[number], 'auto'>;
+  position: Exclude<(typeof cAnchorEdge)[number], 'auto'>;
 }
 
 const parseAnchor = (anchor: anchorType) => {
@@ -349,13 +349,32 @@ const useXarrowProps = (
   const [valVars, setValVars] = useState(initialValVars);
   const startPos = getElemPos(propsRefs.start);
   useDeepCompareEffect(() => {
+    //Element is not in the DOM anymore, so we try to get a new element with the same id
+    if (!startPos) {
+      const newElement = document.getElementById(propsRefs.start.id);
+      setPropsRefs({ ...propsRefs, start: newElement });
+      const startPos = getElemPos(newElement);
+      valVars.startPos = startPos;
+      shouldUpdatePosition.current = true;
+      return setValVars({ ...valVars });
+    }
     valVars.startPos = startPos;
     shouldUpdatePosition.current = true;
     setValVars({ ...valVars });
     // console.log('start update pos', startPos);
   }, [startPos]);
+
   const endPos = getElemPos(propsRefs.end);
   useDeepCompareEffect(() => {
+    //Element is not in the DOM anymore, so we try to get a new element with the same id
+    if (!endPos) {
+      const newElement = document.getElementById(propsRefs.end.id);
+      setPropsRefs({ ...propsRefs, end: newElement });
+      const endPos = getElemPos(newElement);
+      valVars.endPos = endPos;
+      shouldUpdatePosition.current = true;
+      return setValVars({ ...valVars });
+    }
     valVars.endPos = endPos;
     shouldUpdatePosition.current = true;
     setValVars({ ...valVars });
